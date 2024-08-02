@@ -120,13 +120,54 @@ export default class ScriptureIndexer extends Plugin {
 
 	async IndexFile(file: TFile) {
 		if (file.path == this.settings.indexFilePath) {return;}
-		this.ScrapeFile(file);
-		this.saveSettings();
+		console.log("Indexing file " + file.path)
+		await this.ScrapeFile(file);
+		await this.saveSettings();
 		this.WriteIndex();
+	}
+
+	// Remove references to a file from the index
+	// Useful to run when a file is saved in case a references is removed
+	// Keeps the index from having dead references
+	RemoveReferences(file: TFile)
+	{
+		console.log("Removing file " + file.path)
+		// Get indexMap for quick access
+		let indexMap = this.settings.indexMap;
+
+		// Iterate through books to write indexes
+		for (let bookNum = 0; bookNum < indexMap.length; bookNum++)
+		{
+			// Check if book has any data; if not skip
+			if (indexMap[bookNum] == undefined) {continue;}
+
+			// Iterate through chapters
+			for (let chapNum = 0; chapNum < indexMap[bookNum].length; chapNum++) {
+				// Check if chap has any data; if not skip
+				if (indexMap[bookNum][chapNum] == undefined) {continue;}
+
+				// Iterate through verses
+				for (let verseNum = 0; verseNum < indexMap[bookNum][chapNum].length; verseNum++)
+				{
+					// Check if verse has any data; if not skip
+					if (indexMap[bookNum][chapNum][verseNum] == undefined) {continue;}
+
+					// Iterate through references
+					for (let refNum = 0; refNum < indexMap[bookNum][chapNum][verseNum].length; refNum++){
+						if (indexMap[bookNum][chapNum][verseNum][refNum] == file.path) {
+							indexMap[bookNum][chapNum][verseNum].remove(file.path);
+						}
+					}
+				}
+			}
+		}
+		console.log("Done removing file " + file.path)
 	}
 	
 	async ScrapeFile(file: TFile) {
 		if (file.path == this.settings.indexFilePath) {return;}
+		this.RemoveReferences(file);
+		console.log("Scraping file " + file.path)
 		let contents = await this.app.vault.cachedRead(file);
 		for (let key of BibleBooksNameTable.keys()) {
 			// (?<!\d )(((<BOOK>) )\d+([:,]\d+[-\d, ;ab]*)*) - RegEx to find references in the form <BOOK> Chapter(:Verses, Verses-Verse; Chapters:Verses) etc
@@ -311,7 +352,6 @@ export default class ScriptureIndexer extends Plugin {
 			if (refCount > 0){ vault.append(indexFile, output)}
 		}
 	}
-
 }
 
 class ScriptureIndexerSettingTab extends PluginSettingTab {
