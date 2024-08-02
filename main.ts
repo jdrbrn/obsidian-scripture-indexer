@@ -95,10 +95,7 @@ export default class ScriptureIndexer extends Plugin {
 
 		this.registerEvent(this.app.vault.on('modify', (file) => {
 			if (this.settings.indexOnSave){
-				if (file.path == this.settings.indexFilePath) {return;}
 				this.IndexFile(this.app.vault.getFileByPath(file.path)!);
-				this.saveSettings();
-				this.WriteIndex();
 			}
 		}));
 	}
@@ -118,12 +115,19 @@ export default class ScriptureIndexer extends Plugin {
 	async IndexAllFiles() {
 		console.log("Indexing All Files");
 		let files = await this.app.vault.getMarkdownFiles();
-		await files.forEach(file => this.IndexFile(file));
+		await files.forEach(file => this.ScrapeFile(file));
 		await this.saveSettings();
 		this.WriteIndex();
 	}
-	
+
 	async IndexFile(file: TFile) {
+		if (file.path == this.settings.indexFilePath) {return;}
+		this.ScrapeFile(file);
+		this.saveSettings();
+		this.WriteIndex();
+	}
+	
+	async ScrapeFile(file: TFile) {
 		if (file.path == this.settings.indexFilePath) {return;}
 		let contents = await this.app.vault.cachedRead(file);
 		for (let key of BibleBooksNameTable.keys()) {
