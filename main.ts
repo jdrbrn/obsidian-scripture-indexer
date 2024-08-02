@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, ToggleComponent } from 'obsidian';
+import { App, Editor, MarkdownView, Modal, normalizePath, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, ToggleComponent } from 'obsidian';
 // TODO
 // Write to files in folders for Books vs one giant file?
 const BibleBooksNameTable = new Map([
@@ -327,16 +327,18 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Index File Path')
+			.setName('Index file path')
+			.setDesc("The where the index file will be located.")
 			.addText(text => text
 				.setValue(this.plugin.settings.indexFilePath)
 				.onChange(async (value) => {
-					this.plugin.settings.indexFilePath = value;
+					this.plugin.settings.indexFilePath = normalizePath(value);
 					await this.plugin.saveSettings();
 				}));
 
 		new Setting(containerEl)
-			.setName('Index on Save?')
+			.setName('Index on save')
+			.setDesc("Enable indexing files on save.")
 			.addToggle(toggle => toggle
 				.setValue(this.plugin.settings.indexOnSave)
 				.onChange(async (val) => {
