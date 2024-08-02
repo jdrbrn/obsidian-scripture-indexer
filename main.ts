@@ -103,6 +103,8 @@ export default class ScriptureIndexer extends Plugin {
 		this.registerEvent(this.app.vault.on('delete', (file) => {
 			if (this.settings.updateIndexOnFileChange){
 				this.RemoveReferences(file.path);
+				this.saveSettings();
+				this.WriteIndex();
 			}
 		}));
 
@@ -110,7 +112,7 @@ export default class ScriptureIndexer extends Plugin {
 		this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
 			if (this.settings.updateIndexOnFileChange){
 				this.RemoveReferences(oldPath);
-				this.ScrapeFile(this.app.vault.getFileByPath(file.path)!);
+				this.IndexFile(this.app.vault.getFileByPath(file.path)!);
 			}
 		}));
 	}
