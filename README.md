@@ -14,4 +14,4 @@ Index This File - Indexes the currently active note
 ## Settings
 Index File Path - What file to write the index to (Index.md by default)
 
-Update index on file changes - Toggles if notes should be indexed on save (Enabled by default)
+Enable automatic indexing - Toggles if index should be automatically updated when files changes are detected (Enabled by default)
