@@ -51,7 +51,7 @@ interface ScriptureIndexerSettings {
 const DEFAULT_SETTINGS: ScriptureIndexerSettings = {
 	indexFilePath: 'Index.md',
 	indexMap: [],
-	updateIndexOnFileChange: false
+	updateIndexOnFileChange: true
 }
 
 export default class ScriptureIndexer extends Plugin {
