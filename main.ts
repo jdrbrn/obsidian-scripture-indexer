@@ -96,7 +96,6 @@ export default class ScriptureIndexer extends Plugin {
 		this.registerEvent(this.app.vault.on('modify', (file) => {
 			if (this.settings.indexOnSave){
 				this.IndexFile(this.app.vault.getFileByPath(file.path)!);
-				console.log(this.settings.indexMap)
 				this.WriteIndex();
 			}
 		}));
@@ -119,13 +118,11 @@ export default class ScriptureIndexer extends Plugin {
 		let files = await this.app.vault.getMarkdownFiles();
 		await files.forEach(file => this.IndexFile(file));
 		await this.saveSettings();
-		console.log(this.settings.indexMap);
 		this.WriteIndex();
 	}
 	
 	async IndexFile(file: TFile) {
 		if (file.path == this.settings.indexFilePath) {return;}
-		console.log("Indexing File: " + file.name);
 		let contents = await this.app.vault.cachedRead(file);
 		for (let key of BibleBooksNameTable.keys()) {
 			// (?<!\d )(((<BOOK>) )\d+([:,]\d+[-\d, ;ab]*)*) - RegEx to find references in the form <BOOK> Chapter(:Verses, Verses-Verse; Chapters:Verses) etc
