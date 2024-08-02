@@ -129,9 +129,8 @@ export default class ScriptureIndexer extends Plugin {
 	// Remove references to a file from the index
 	// Useful to run when a file is saved in case a references is removed
 	// Keeps the index from having dead references
-	RemoveReferences(file: TFile)
+	RemoveReferences(file: string)
 	{
-		console.log("Removing file " + file.path)
 		// Get indexMap for quick access
 		let indexMap = this.settings.indexMap;
 
@@ -154,19 +153,18 @@ export default class ScriptureIndexer extends Plugin {
 
 					// Iterate through references
 					for (let refNum = 0; refNum < indexMap[bookNum][chapNum][verseNum].length; refNum++){
-						if (indexMap[bookNum][chapNum][verseNum][refNum] == file.path) {
-							indexMap[bookNum][chapNum][verseNum].remove(file.path);
+						if (indexMap[bookNum][chapNum][verseNum][refNum] == file) {
+							indexMap[bookNum][chapNum][verseNum].remove(file);
 						}
 					}
 				}
 			}
 		}
-		console.log("Done removing file " + file.path)
 	}
 	
 	async ScrapeFile(file: TFile) {
 		if (file.path == this.settings.indexFilePath) {return;}
-		this.RemoveReferences(file);
+		this.RemoveReferences(file.path);
 		console.log("Scraping file " + file.path)
 		let contents = await this.app.vault.cachedRead(file);
 		for (let key of BibleBooksNameTable.keys()) {
