@@ -1,9 +1,9 @@
 {
 	"id": "scripture-indexer",
 	"name": "Scripture Indexer",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"minAppVersion": "0.15.0",
-	"description": "Indexes references to scriptures in notes",
+	"description": "Indexes references to scriptures in notes.",
 	"author": "jdrbrn",
 	"isDesktopOnly": false
 }
