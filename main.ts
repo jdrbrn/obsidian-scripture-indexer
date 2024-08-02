@@ -45,13 +45,13 @@ interface ScriptureIndexerSettings {
 	// Book -> Chapters -> Verses -> Refs (Path to file)
 	// index of array is number of Chapter/Verse (0 index for chapter/verse is ref of whole book/chapter)
 	indexMap: Array<Array<Array<Array<String>>>>;
-	indexOnSave: boolean;
+	updateIndexOnFileChange: boolean;
 }
 
 const DEFAULT_SETTINGS: ScriptureIndexerSettings = {
 	indexFilePath: 'Index.md',
 	indexMap: [],
-	indexOnSave: false
+	updateIndexOnFileChange: false
 }
 
 export default class ScriptureIndexer extends Plugin {
@@ -92,9 +92,25 @@ export default class ScriptureIndexer extends Plugin {
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new ScriptureIndexerSettingTab(this.app, this));
 
+		// Update index on file saving if enabled by user
 		this.registerEvent(this.app.vault.on('modify', (file) => {
-			if (this.settings.indexOnSave){
+			if (this.settings.updateIndexOnFileChange){
 				this.IndexFile(this.app.vault.getFileByPath(file.path)!);
+			}
+		}));
+
+		// Automatically cleans up index of dead references on deletion
+		this.registerEvent(this.app.vault.on('delete', (file) => {
+			if (this.settings.updateIndexOnFileChange){
+				this.RemoveReferences(file.path);
+			}
+		}));
+
+		// Automatically cleans up index of dead references and indexes new ones on rename
+		this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
+			if (this.settings.updateIndexOnFileChange){
+				this.RemoveReferences(oldPath);
+				this.ScrapeFile(this.app.vault.getFileByPath(file.path)!);
 			}
 		}));
 	}
@@ -376,12 +392,12 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 				}));
 
 		new Setting(containerEl)
-			.setName('Index on save')
-			.setDesc("Enable indexing files on save.")
+			.setName('Update index on file changes')
+			.setDesc("Update the index when files are saved, renamed, deleted")
 			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.indexOnSave)
+				.setValue(this.plugin.settings.updateIndexOnFileChange)
 				.onChange(async (val) => {
-					this.plugin.settings.indexOnSave = val;
+					this.plugin.settings.updateIndexOnFileChange = val;
 					await this.plugin.saveSettings();
 				})
 			)
