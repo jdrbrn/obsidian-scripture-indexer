@@ -74,7 +74,6 @@ export default class ScriptureIndexer extends Plugin {
 			name: 'Index This File',
 			callback: () => {
 				let curFile = this.app.workspace.getActiveFile();
-				console.log(curFile?.path);
 				if (curFile != null){
 					this.IndexFile(this.app.workspace.getActiveFile()!);
 				}
@@ -113,7 +112,6 @@ export default class ScriptureIndexer extends Plugin {
 	}
 
 	async IndexAllFiles() {
-		console.log("Indexing All Files");
 		let files = await this.app.vault.getMarkdownFiles();
 		await files.forEach(file => this.ScrapeFile(file));
 		await this.saveSettings();
