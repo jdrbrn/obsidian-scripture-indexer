@@ -136,7 +136,6 @@ export default class ScriptureIndexer extends Plugin {
 
 	async IndexFile(file: TFile) {
 		if (file.path == this.settings.indexFilePath) {return;}
-		console.log("Indexing file " + file.path)
 		await this.ScrapeFile(file);
 		await this.saveSettings();
 		this.WriteIndex();
@@ -181,7 +180,6 @@ export default class ScriptureIndexer extends Plugin {
 	async ScrapeFile(file: TFile) {
 		if (file.path == this.settings.indexFilePath) {return;}
 		this.RemoveReferences(file.path);
-		console.log("Scraping file " + file.path)
 		let contents = await this.app.vault.cachedRead(file);
 		for (let key of BibleBooksNameTable.keys()) {
 			// (?<!\d )(((<BOOK>) )\d+([:,]\d+[-\d, ;ab]*)*) - RegEx to find references in the form <BOOK> Chapter(:Verses, Verses-Verse; Chapters:Verses) etc
