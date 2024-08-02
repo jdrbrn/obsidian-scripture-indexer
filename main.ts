@@ -97,6 +97,7 @@ export default class ScriptureIndexer extends Plugin {
 			if (this.settings.indexOnSave){
 				if (file.path == this.settings.indexFilePath) {return;}
 				this.IndexFile(this.app.vault.getFileByPath(file.path)!);
+				this.saveSettings();
 				this.WriteIndex();
 			}
 		}));
