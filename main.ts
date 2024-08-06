@@ -63,7 +63,7 @@ export default class ScriptureIndexer extends Plugin {
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
 			id: 'index-all-scriptures',
-			name: 'Index All Files',
+			name: 'Index all files',
 			callback: () => {
 				this.IndexAllFiles();
 			}
@@ -71,7 +71,7 @@ export default class ScriptureIndexer extends Plugin {
 		
 		this.addCommand({
 			id: 'index-scriptures',
-			name: 'Index This File',
+			name: 'Index this file',
 			callback: () => {
 				let curFile = this.app.workspace.getActiveFile();
 				if (curFile != null){
@@ -82,7 +82,7 @@ export default class ScriptureIndexer extends Plugin {
 		
 		this.addCommand({
 			id: 'reset-index',
-			name: 'Reset Index',
+			name: 'Reset index',
 			callback: () => {
 				this.settings.indexMap = [];
 				this.WriteIndex();
@@ -95,7 +95,10 @@ export default class ScriptureIndexer extends Plugin {
 		// Update index on file saving if enabled by user
 		this.registerEvent(this.app.vault.on('modify', (file) => {
 			if (this.settings.enableAutoIndex){
-				this.IndexFile(this.app.vault.getFileByPath(file.path)!);
+				let newFile = this.app.vault.getFileByPath(file.path);
+				if (newFile != null) {
+					this.IndexFile(newFile);
+				}
 			}
 		}));
 
@@ -112,7 +115,10 @@ export default class ScriptureIndexer extends Plugin {
 		this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
 			if (this.settings.enableAutoIndex){
 				this.RemoveReferences(oldPath);
-				this.IndexFile(this.app.vault.getFileByPath(file.path)!);
+				let newFile = this.app.vault.getFileByPath(file.path);
+				if (newFile != null) {
+					this.IndexFile(newFile);
+				}
 			}
 		}));
 	}
