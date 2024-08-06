@@ -144,6 +144,18 @@ export default class ScriptureIndexer extends Plugin {
 
 	async IndexFile(file: TFile) {
 		if (file.path == this.settings.indexFilePath) {return;}
+		// Reload settings to grab the latest saved index
+		// Could be different than the previously loaded one if data was synced after plugin was loaded
+		// Not doing so could result in the output index file being outdated/desynced
+		// Ex: Index loaded from local store
+		//     Files are synced including changed notes(foo.md)
+		//     Updated index file is synced as well containing references to foo.md
+		// 	   Updated index data is synced, but not loaded
+		//     A note (bar.md) is saved and indexed
+		//     Loaded index data now contains bar.md but not foo.md
+		//     Output index file is now missing references to foo.md that should be there
+		// Not needed for IndexAllFiles since that'll index all files and catch any missing references
+		await this.loadSettings();
 		await this.ScrapeFile(file);
 		await this.saveSettings();
 		this.WriteIndex();
