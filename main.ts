@@ -106,7 +106,7 @@ export default class ScriptureIndexer extends Plugin {
 		this.registerEvent(this.app.vault.on('delete', (file) => {
 			if (this.settings.enableAutoIndex){
 				this.RemoveReferences(file.path);
-				this.saveSettings();
+				this.saveSettingsDebounce();
 				this.WriteIndex();
 			}
 		}));
@@ -157,14 +157,14 @@ export default class ScriptureIndexer extends Plugin {
 	async IndexAllFiles() {
 		let files = await this.app.vault.getMarkdownFiles();
 		await files.forEach(file => this.ScrapeFile(file));
-		await this.saveSettings();
+		this.saveSettingsDebounce();
 		this.WriteIndex();
 	}
 
 	async IndexFile(file: TFile) {
 		if (file.path == this.settings.indexFilePath) {return;}
 		await this.ScrapeFile(file);
-		await this.saveSettings();
+		this.saveSettingsDebounce();
 		this.WriteIndex();
 	}
 
