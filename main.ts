@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Modal, normalizePath, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, ToggleComponent } from 'obsidian';
+import { App, debounce, Debouncer, Editor, MarkdownView, Modal, normalizePath, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, ToggleComponent } from 'obsidian';
 // TODO
 // Write to files in folders for Books vs one giant file?
 const BibleBooksNameTable = new Map([
@@ -148,6 +148,11 @@ export default class ScriptureIndexer extends Plugin {
 	async saveSettings() {
 		await this.saveData(this.settings);
 	}
+
+	// Have a debounced saveSettings to buffer saving the internal index
+	// Has a delay timer of 1 second
+	// Keeps delaying until no request to save has been received in the past second
+	saveSettingsDebounce = debounce(this.saveSettings, 1000, true);
 
 	async IndexAllFiles() {
 		let files = await this.app.vault.getMarkdownFiles();
