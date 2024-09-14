@@ -85,6 +85,7 @@ export default class ScriptureIndexer extends Plugin {
 			name: 'Reset index',
 			callback: () => {
 				this.settings.indexMap = [];
+				// Don't debounce because user wants us to write immediately
 				this.WriteIndex();
 			}
 		});
@@ -107,7 +108,7 @@ export default class ScriptureIndexer extends Plugin {
 			if (this.settings.enableAutoIndex){
 				this.RemoveReferences(file.path);
 				this.saveSettingsDebounce();
-				this.WriteIndex();
+				this.WriteIndexDebounce();
 			}
 		}));
 
@@ -158,14 +159,14 @@ export default class ScriptureIndexer extends Plugin {
 		let files = await this.app.vault.getMarkdownFiles();
 		await files.forEach(file => this.ScrapeFile(file));
 		this.saveSettingsDebounce();
-		this.WriteIndex();
+		this.WriteIndexDebounce();
 	}
 
 	async IndexFile(file: TFile) {
 		if (file.path == this.settings.indexFilePath) {return;}
 		await this.ScrapeFile(file);
 		this.saveSettingsDebounce();
-		this.WriteIndex();
+		this.WriteIndexDebounce();
 	}
 
 	// Remove references to a file from the index
@@ -391,6 +392,10 @@ export default class ScriptureIndexer extends Plugin {
 			if (refCount > 0){ vault.append(indexFile, output)}
 		}
 	}
+
+	// Debounce the writeIndex function to batch saving the index
+	// Buffers for 1 second until no more write calls are made
+	WriteIndexDebounce = debounce(this.WriteIndex, 1000, true);
 }
 
 class ScriptureIndexerSettingTab extends PluginSettingTab {
