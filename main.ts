@@ -157,7 +157,9 @@ export default class ScriptureIndexer extends Plugin {
 
 	async IndexAllFiles() {
 		let files = await this.app.vault.getMarkdownFiles();
-		await files.forEach(file => this.ScrapeFile(file));
+		for (let file of files) {
+			await this.ScrapeFile(file);
+		}
 		this.saveSettingsDebounce();
 		this.WriteIndexDebounce();
 	}
