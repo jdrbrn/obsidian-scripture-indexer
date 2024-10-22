@@ -234,7 +234,7 @@ export default class ScriptureIndexer extends Plugin {
 		this.RemoveReferences(file.path);
 		let contents = await this.app.vault.cachedRead(file);
 		for (let key of BibleBooksNameTable.keys()) {
-			// (?<!\d )(((<BOOK>) )\d+([:,]\d+[-\d, ;ab]*)*) - RegEx to find references in the form <BOOK> Chapter(:Verses, Verses-Verse; Chapters:Verses) etc
+			// (?<!(\d )|(\w))(((<BOOK>) )\d+([:,.]\d+[-\d, ;ab]*)*) - RegEx to find references in the form <BOOK> Chapter(:Verses, Verses-Verse; Chapters:Verses) etc
 			// Build with escaping the '\' characters and passing the global flag to the constructor
 			let search = new RegExp("(?<!(\\d )|(\\w))(((" + key + ") )\\d+([:,.]\\d+[-\\d, ;ab]*)*)", "gi")
 			let results = contents.match(search);
