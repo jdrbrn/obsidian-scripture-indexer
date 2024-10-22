@@ -57,6 +57,8 @@ const DEFAULT_SETTINGS: ScriptureIndexerSettings = {
 export default class ScriptureIndexer extends Plugin {
 	settings: ScriptureIndexerSettings;
 
+	indexQueue = new Map<string,any>();
+
 	async onload() {
 		await this.loadSettings();
 
@@ -75,7 +77,7 @@ export default class ScriptureIndexer extends Plugin {
 			callback: () => {
 				let curFile = this.app.workspace.getActiveFile();
 				if (curFile != null){
-					this.IndexFile(this.app.workspace.getActiveFile()!);
+					this.IndexFile(this.app.workspace.getActiveFile()!.path);
 				}
 			}
 		});
@@ -98,7 +100,7 @@ export default class ScriptureIndexer extends Plugin {
 			if (this.settings.enableAutoIndex){
 				let newFile = this.app.vault.getFileByPath(file.path);
 				if (newFile != null) {
-					this.IndexFile(newFile);
+					this.AddToIndexQueue(newFile);
 				}
 			}
 		}));
@@ -118,7 +120,7 @@ export default class ScriptureIndexer extends Plugin {
 				this.RemoveReferences(oldPath);
 				let newFile = this.app.vault.getFileByPath(file.path);
 				if (newFile != null) {
-					this.IndexFile(newFile);
+					this.AddToIndexQueue(newFile);
 				}
 			}
 		}));
@@ -164,8 +166,28 @@ export default class ScriptureIndexer extends Plugin {
 		this.WriteIndexDebounce();
 	}
 
-	async IndexFile(file: TFile) {
-		if (file.path == this.settings.indexFilePath) {return;}
+	AddToIndexQueue(file: TFile) {
+		// Get file path
+		let filePath = this.settings.indexFilePath;
+
+		// Check if already in queue
+		if (this.indexQueue.get(filePath)==null) {
+			// Add to queue
+			// Contains debounced function to delete the file from the queue and then index the file with 1 second queue timer
+			this.indexQueue.set(filePath, debounce(() => {
+															this.indexQueue.delete(filePath);
+															this.IndexFile(filePath);
+														}, 1000, true));
+		}
+
+		// Call debounced function to (re)queue the indexing
+		this.indexQueue.get(this.settings.indexFilePath)();
+	}
+
+	async IndexFile(filePath: string) {
+		if (filePath == this.settings.indexFilePath) {return;}
+		let file = this.app.vault.getFileByPath(filePath);
+		if (file == null) {return;}
 		await this.ScrapeFile(file);
 		this.saveSettingsDebounce();
 		this.WriteIndexDebounce();
