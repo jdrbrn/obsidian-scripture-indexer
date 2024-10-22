@@ -98,10 +98,7 @@ export default class ScriptureIndexer extends Plugin {
 		// Update index on file saving if enabled by user
 		this.registerEvent(this.app.vault.on('modify', (file) => {
 			if (this.settings.enableAutoIndex){
-				let newFile = this.app.vault.getFileByPath(file.path);
-				if (newFile != null) {
-					this.AddToIndexQueue(newFile);
-				}
+				this.AddToIndexQueue(file.path);
 			}
 		}));
 
@@ -128,10 +125,7 @@ export default class ScriptureIndexer extends Plugin {
 					this.indexQueue.delete(oldPath);
 				}
 				this.RemoveReferences(oldPath);
-				let newFile = this.app.vault.getFileByPath(file.path);
-				if (newFile != null) {
-					this.AddToIndexQueue(newFile);
-				}
+				this.AddToIndexQueue(file.path);
 			}
 		}));
 	}
@@ -176,10 +170,7 @@ export default class ScriptureIndexer extends Plugin {
 		this.WriteIndexDebounce();
 	}
 
-	AddToIndexQueue(file: TFile) {
-		// Get file path
-		let filePath = file.path;
-
+	AddToIndexQueue(filePath: string) {
 		// Check if already in queue
 		if (this.indexQueue.has(filePath)==false) {
 			// Add to queue
