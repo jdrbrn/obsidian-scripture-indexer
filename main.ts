@@ -108,6 +108,11 @@ export default class ScriptureIndexer extends Plugin {
 		// Automatically cleans up index of dead references on deletion
 		this.registerEvent(this.app.vault.on('delete', (file) => {
 			if (this.settings.enableAutoIndex){
+				// Remove from queue since deleted
+				if (this.indexQueue.has(file.path)) {
+					this.indexQueue.get(file.path)!.cancel();
+					this.indexQueue.delete(file.path);
+				}
 				this.RemoveReferences(file.path);
 				this.saveSettingsDebounce();
 				this.WriteIndexDebounce();
@@ -117,6 +122,11 @@ export default class ScriptureIndexer extends Plugin {
 		// Automatically cleans up index of dead references and indexes new ones on rename
 		this.registerEvent(this.app.vault.on('rename', (file, oldPath) => {
 			if (this.settings.enableAutoIndex){
+				// Remove old file path from queue
+				if (this.indexQueue.has(oldPath)) {
+					this.indexQueue.get(oldPath)!.cancel();
+					this.indexQueue.delete(oldPath);
+				}
 				this.RemoveReferences(oldPath);
 				let newFile = this.app.vault.getFileByPath(file.path);
 				if (newFile != null) {
