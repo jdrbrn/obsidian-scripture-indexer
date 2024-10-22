@@ -178,7 +178,7 @@ export default class ScriptureIndexer extends Plugin {
 
 	AddToIndexQueue(file: TFile) {
 		// Get file path
-		let filePath = this.settings.indexFilePath;
+		let filePath = file.path;
 
 		// Check if already in queue
 		if (this.indexQueue.has(filePath)==false) {
@@ -191,7 +191,7 @@ export default class ScriptureIndexer extends Plugin {
 		}
 
 		// Call debounced function to (re)queue the indexing
-		this.indexQueue.get(this.settings.indexFilePath)!();
+		this.indexQueue.get(filePath)!();
 	}
 
 	async IndexFile(filePath: string) {
