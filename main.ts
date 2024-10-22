@@ -334,8 +334,8 @@ export default class ScriptureIndexer extends Plugin {
 		// Get indexFile for quick access
 		let indexFile = vault.getFileByPath(this.settings.indexFilePath)!;
 
-		// Reset indexFile
-		vault.modify(indexFile,"File is automatically generated and any changes will be overwritten\n");
+		// Setup var to hold the eventual contents of the indexFile
+		let indexFileContents = "File is automatically generated and any changes will be overwriten\n"
 
 		// Get indexMap for quick access
 		let indexMap = this.settings.indexMap;
@@ -390,9 +390,12 @@ export default class ScriptureIndexer extends Plugin {
 					}
 				}
 			}
-			// If we had a reference then output table to file
-			if (refCount > 0){ vault.append(indexFile, output)}
+			// If we had a reference then add table to what will be written to the indexFile
+			if (refCount > 0){indexFileContents += output;}
 		}
+
+		// Overwrite indexFile with new contents
+		vault.modify(indexFile, indexFileContents);
 	}
 
 	// Debounce the writeIndex function to batch saving the index
