@@ -57,7 +57,7 @@ const DEFAULT_SETTINGS: ScriptureIndexerSettings = {
 export default class ScriptureIndexer extends Plugin {
 	settings: ScriptureIndexerSettings;
 
-	indexQueue = new Map<string,any>();
+	indexQueue = new Map<string,Debouncer<any,any>>();
 
 	async onload() {
 		await this.loadSettings();
@@ -171,7 +171,7 @@ export default class ScriptureIndexer extends Plugin {
 		let filePath = this.settings.indexFilePath;
 
 		// Check if already in queue
-		if (this.indexQueue.get(filePath)==null) {
+		if (this.indexQueue.has(filePath)==false) {
 			// Add to queue
 			// Contains debounced function to delete the file from the queue and then index the file with 1 second queue timer
 			this.indexQueue.set(filePath, debounce(() => {
@@ -181,7 +181,7 @@ export default class ScriptureIndexer extends Plugin {
 		}
 
 		// Call debounced function to (re)queue the indexing
-		this.indexQueue.get(this.settings.indexFilePath)();
+		this.indexQueue.get(this.settings.indexFilePath)!();
 	}
 
 	async IndexFile(filePath: string) {
