@@ -128,6 +128,15 @@ export default class ScriptureIndexer extends Plugin {
 				this.AddToIndexQueue(file.path);
 			}
 		}));
+
+		// On quitting try to index on files on queue and save the index and write out to indexfile
+		this.registerEvent(this.app.workspace.on('quit', () => {
+			this.indexQueue.forEach((queueItem)=> {
+				queueItem().run();
+			});
+			this.WriteIndex();
+			this.saveSettings();
+		}));
 	}
 
 	onunload() {
