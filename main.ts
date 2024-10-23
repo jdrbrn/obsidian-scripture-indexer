@@ -46,12 +46,14 @@ interface ScriptureIndexerSettings {
 	// index of array is number of Chapter/Verse (0 index for chapter/verse is ref of whole book/chapter)
 	indexMap: Array<Array<Array<Array<String>>>>;
 	enableAutoIndex: boolean;
+	autoIndexDelay: number;
 }
 
 const DEFAULT_SETTINGS: ScriptureIndexerSettings = {
 	indexFilePath: 'Index.md',
 	indexMap: [],
-	enableAutoIndex: true
+	enableAutoIndex: true,
+	autoIndexDelay: 1000
 }
 
 export default class ScriptureIndexer extends Plugin {
@@ -187,7 +189,7 @@ export default class ScriptureIndexer extends Plugin {
 			this.indexQueue.set(filePath, debounce(() => {
 															this.indexQueue.delete(filePath);
 															this.IndexFile(filePath);
-														}, 1000, true));
+														}, this.settings.autoIndexDelay, true));
 		}
 
 		// Call debounced function to (re)queue the indexing
@@ -467,6 +469,23 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 					this.plugin.settings.enableAutoIndex = val;
 					await this.plugin.saveSettings();
 				})
-			)
+			);
+		
+		new Setting(containerEl)
+			.setName('Automatic indexing delay')
+			.setDesc("How long to wait after editing a file before indexing")
+			.addDropdown(dropdown => dropdown
+				.addOption("0","0 Seconds")
+				.addOption("1000","1 Second")
+				.addOption("2000","2 Seconds")
+				.addOption("3000","3 Seconds")
+				.addOption("4000","4 Seconds")
+				.addOption("5000","5 Seconds")
+				.setValue(this.plugin.settings.autoIndexDelay.toString())
+				.onChange(async (val) => {
+					this.plugin.settings.autoIndexDelay = Number(val);
+					await this.plugin.saveSettings();
+				})
+			);
 	}
 }
