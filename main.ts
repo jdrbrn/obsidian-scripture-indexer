@@ -369,7 +369,7 @@ export default class ScriptureIndexer extends Plugin {
 		let indexFile = vault.getFileByPath(this.settings.indexFilePath)!;
 
 		// Setup var to hold the eventual contents of the indexFile
-		let indexFileContents = "File is automatically generated and any changes will be overwriten\n"
+		let indexFileContents = "File is automatically generated and any changes will be overwritten\n"
 
 		// Get indexMap for quick access
 		let indexMap = this.settings.indexMap;
