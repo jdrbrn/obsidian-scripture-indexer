@@ -187,7 +187,7 @@ export default class ScriptureIndexer extends Plugin {
 		// Check if already in queue
 		if (this.indexQueue.has(filePath)==false) {
 			// Add to queue
-			// Contains debounced function to delete the file from the queue and then index the file with 1 second queue timer
+			// Contains debounced function to delete the file from the queue and then index the file with the user set timer
 			this.indexQueue.set(filePath, debounce(() => {
 															this.indexQueue.delete(filePath);
 															this.IndexFile(filePath);
