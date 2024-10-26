@@ -61,6 +61,8 @@ export default class ScriptureIndexer extends Plugin {
 
 	indexQueue = new Map<string,Debouncer<any,any>>();
 
+	derefQueue = new Map<string,Debouncer<any,any>>();
+
 	async onload() {
 		await this.loadSettings();
 
@@ -126,7 +128,7 @@ export default class ScriptureIndexer extends Plugin {
 					this.indexQueue.get(oldPath)!.cancel();
 					this.indexQueue.delete(oldPath);
 				}
-				this.RemoveReferences(oldPath);
+				this.AddToDerefQueue(oldPath);
 				this.AddToIndexQueue(file.path);
 			}
 		}));
@@ -203,6 +205,21 @@ export default class ScriptureIndexer extends Plugin {
 		await this.ScrapeFile(file);
 		this.saveSettingsDebounce();
 		this.WriteIndexDebounce();
+	}
+
+	AddToDerefQueue(filePath: string) {
+		// Check if already in queue
+		if (this.derefQueue.has(filePath)==false) {
+			// Add to queue
+			// Contains debounced function to delete the file from the queue and then index the file with 1 second queue timer
+			this.derefQueue.set(filePath, debounce(() => {
+															this.derefQueue.delete(filePath);
+															this.RemoveReferences(filePath);
+														}, 1000, true));
+		}
+
+		// Call debounced function to (re)queue the indexing
+		this.derefQueue.get(filePath)!();
 	}
 
 	// Remove references to a file from the index
