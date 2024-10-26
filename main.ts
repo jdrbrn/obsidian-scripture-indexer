@@ -256,6 +256,8 @@ export default class ScriptureIndexer extends Plugin {
 				}
 			}
 		}
+		this.saveSettingsDebounce();
+		this.WriteIndexDebounce();
 	}
 	
 	async ScrapeFile(file: TFile) {
