@@ -448,7 +448,7 @@ export default class ScriptureIndexer extends Plugin {
 		}
 
 		// Overwrite indexFile with new contents
-		vault.modify(indexFile, indexFileContents);
+		vault.process(indexFile, () => {return indexFileContents});
 	}
 
 	// Debounce the writeIndex function to batch saving the index
