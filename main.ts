@@ -53,7 +53,7 @@ const DEFAULT_SETTINGS: ScriptureIndexerSettings = {
 	indexFilePath: 'Index.md',
 	indexMap: [],
 	enableAutoIndex: true,
-	autoIndexDelay: 1000
+	autoIndexDelay: 3000
 }
 
 export default class ScriptureIndexer extends Plugin {
