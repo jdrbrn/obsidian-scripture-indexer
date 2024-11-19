@@ -47,13 +47,15 @@ interface ScriptureIndexerSettings {
 	indexMap: Array<Array<Array<Array<String>>>>;
 	enableAutoIndex: boolean;
 	autoIndexDelay: number;
+	chapVerseDelimter: string;
 }
 
 const DEFAULT_SETTINGS: ScriptureIndexerSettings = {
 	indexFilePath: 'Index.md',
 	indexMap: [],
 	enableAutoIndex: true,
-	autoIndexDelay: 3000
+	autoIndexDelay: 3000,
+	chapVerseDelimter: ':'
 }
 
 export default class ScriptureIndexer extends Plugin {
@@ -265,9 +267,9 @@ export default class ScriptureIndexer extends Plugin {
 		this.RemoveReferences(file.path);
 		let contents = await this.app.vault.cachedRead(file);
 		for (let key of BibleBooksNameTable.keys()) {
-			// (?<!(\d )|(\w))(((<BOOK>) )\d+([:,.]\d+[-\d, ;ab]*)*) - RegEx to find references in the form <BOOK> Chapter(:Verses, Verses-Verse; Chapters:Verses) etc
+			// (?<!(\d )|(\w))(((<BOOK>) )\d+([<DELIMITER>,]\d+[-\d, ;ab]*)*) - RegEx to find references in the form <BOOK> Chapter(<DELIMTER>Verses, Verses-Verse; Chapters<DELIMITER>Verses) etc
 			// Build with escaping the '\' characters and passing the global flag to the constructor
-			let search = new RegExp("(?<!(\\d )|(\\w))(((" + key + ") )\\d+([:,.]\\d+[-\\d, ;ab]*)*)", "gi")
+			let search = new RegExp("(?<!(\\d )|(\\w))(((" + key + ") )\\d+([" + this.settings.chapVerseDelimter + ",]\\d+[-\\d, ;ab]*)*)", "gi")
 			let results = contents.match(search);
 			if (results!=null) {
 				let book = BibleBooksNameTable.get(key)!;
@@ -280,10 +282,10 @@ export default class ScriptureIndexer extends Plugin {
 						if (lookup == '') {return;}
 
 						// Get chapter number
-						let chapter = lookup.split(':')[0];
+						let chapter = lookup.split(this.settings.chapVerseDelimter)[0];
 
 						// Check for only chapter ref or for Jude which has no chapters (and verses will be handled as a chapter)
-						if (lookup.split(':').length == 1)
+						if (lookup.split(this.settings.chapVerseDelimter).length == 1)
 						{
 							// Check for the chapter being for an interval of verses and handle if needed
 							if (chapter.contains('-')){
@@ -308,7 +310,7 @@ export default class ScriptureIndexer extends Plugin {
 						}
 
 						// Split for multiple verse lookups
-						let verseLookups = lookup.split(':')[1].split(',');
+						let verseLookups = lookup.split(this.settings.chapVerseDelimter)[1].split(',');
 						verseLookups.forEach(verseLookup => {
 							// Check for the lookup being for an interval of verses and handle if needed
 							if (verseLookup.contains('-')){
@@ -476,6 +478,19 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 				.setValue(this.plugin.settings.indexFilePath)
 				.onChange(async (value) => {
 					this.plugin.settings.indexFilePath = normalizePath(value);
+					await this.plugin.saveSettings();
+				}));
+
+		new Setting(containerEl)
+			.setName('Chapter and verse delimiter')
+			.setDesc("The character that you use to seperate chapters and verses")
+			.addDropdown(dropdown => dropdown
+				.addOption(':', ":")
+				.addOption('#', "#")
+				.addOption('.', ".")
+				.setValue(this.plugin.settings.chapVerseDelimter)
+				.onChange(async (val) => {
+					this.plugin.settings.chapVerseDelimter = val;
 					await this.plugin.saveSettings();
 				}));
 
