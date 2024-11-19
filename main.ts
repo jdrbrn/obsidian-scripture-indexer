@@ -486,7 +486,7 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 				super(app);
 				this.setTitle('Reset Index?');
 				new Setting(this.contentEl)
-					.setName('The delimiter has changed. Reset index?');
+					.setName("The delimiter has changed. " + (plugin.settings.enableAutoIndex ? "Reset and reindex?" : "Reset index?"));
 				new Setting(this.contentEl)
 					.addButton( (btn) =>
 						btn
@@ -501,6 +501,7 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 							plugin.settings.indexMap = [];
 							plugin.WriteIndex();
 							await plugin.saveSettings();
+							if (plugin.settings.enableAutoIndex) plugin.IndexAllFiles();
 							this.close()
 						})
 					);
