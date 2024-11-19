@@ -481,6 +481,32 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
+		class ResetIndexModal extends Modal {
+			constructor(app: App, plugin: ScriptureIndexer) {
+				super(app);
+				this.setTitle('Reset Index?');
+				new Setting(this.contentEl)
+					.setName('The delimiter has changed. Reset index?');
+				new Setting(this.contentEl)
+					.addButton( (btn) =>
+						btn
+						.setButtonText('No')
+						.onClick(() => this.close())
+					)
+					.addButton( (btn) => 
+						btn
+						.setButtonText('Yes')
+						.setCta()
+						.onClick(async () => {
+							plugin.settings.indexMap = [];
+							plugin.WriteIndex();
+							await plugin.saveSettings();
+							this.close()
+						})
+					);
+			}
+		}
+
 		new Setting(containerEl)
 			.setName('Chapter and verse delimiter')
 			.setDesc("The character that you use to seperate chapters and verses")
@@ -492,6 +518,7 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 				.onChange(async (val) => {
 					this.plugin.settings.chapVerseDelimter = val;
 					await this.plugin.saveSettings();
+					new ResetIndexModal(this.app, this.plugin).open();
 				}));
 
 		new Setting(containerEl)
