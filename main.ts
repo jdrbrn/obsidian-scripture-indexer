@@ -214,7 +214,7 @@ export default class ScriptureIndexer extends Plugin {
 			// If path is excluded return without indexing
 			if (this.settings.exclusionList.includes(testPath)) {return;}
 		}
-		
+
 		let file = this.app.vault.getFileByPath(filePath);
 		if (file == null) {return;}
 		await this.ScrapeFile(file);
@@ -497,7 +497,7 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 		class ResetIndexModal extends Modal {
 			constructor(app: App, plugin: ScriptureIndexer) {
 				super(app);
-				this.setTitle('Reset Index?');
+				this.setTitle('Reset index?');
 				new Setting(this.contentEl)
 					.setName("The delimiter has changed. " + (plugin.settings.enableAutoIndex ? "Reset and reindex?" : "Reset index?"));
 				new Setting(this.contentEl)
