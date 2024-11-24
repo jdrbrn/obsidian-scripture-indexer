@@ -83,7 +83,7 @@ export default class ScriptureIndexer extends Plugin {
 			callback: () => {
 				let curFile = this.app.workspace.getActiveFile();
 				if (curFile != null){
-					this.IndexFile(this.app.workspace.getActiveFile()!.path);
+					this.AddToIndexQueue(this.app.workspace.getActiveFile()!.path);
 				}
 			}
 		});
@@ -116,9 +116,7 @@ export default class ScriptureIndexer extends Plugin {
 					this.indexQueue.get(file.path)!.cancel();
 					this.indexQueue.delete(file.path);
 				}
-				this.RemoveReferences(file.path);
-				this.saveSettingsDebounce();
-				this.WriteIndexDebounce();
+				this.AddToDerefQueue(file.path);
 			}
 		}));
 
@@ -179,10 +177,8 @@ export default class ScriptureIndexer extends Plugin {
 	async IndexAllFiles() {
 		let files = await this.app.vault.getMarkdownFiles();
 		for (let file of files) {
-			await this.ScrapeFile(file);
+			this.AddToIndexQueue(file.path);
 		}
-		this.saveSettingsDebounce();
-		this.WriteIndexDebounce();
 	}
 
 	AddToIndexQueue(filePath: string) {
