@@ -48,6 +48,7 @@ interface ScriptureIndexerSettings {
 	enableAutoIndex: boolean;
 	autoIndexDelay: number;
 	chapVerseDelimter: string;
+	exclusionList: Array<string>;
 }
 
 const DEFAULT_SETTINGS: ScriptureIndexerSettings = {
@@ -55,7 +56,8 @@ const DEFAULT_SETTINGS: ScriptureIndexerSettings = {
 	indexMap: [],
 	enableAutoIndex: true,
 	autoIndexDelay: 3000,
-	chapVerseDelimter: ':'
+	chapVerseDelimter: ':',
+	exclusionList: []
 }
 
 export default class ScriptureIndexer extends Plugin {
@@ -197,7 +199,22 @@ export default class ScriptureIndexer extends Plugin {
 	}
 
 	async IndexFile(filePath: string) {
+		// Don't index the index
 		if (filePath == this.settings.indexFilePath) {return;}
+
+		// Check if file/directory is in the exclusion list
+		// Get path components
+		let splitPath = filePath.split('/');
+		// Do a top down check if excluded
+		for (let i=0; i < splitPath.length; i++)
+		{
+			// Rejoin the path through the current segment
+			// Use i+1 since slice is exclusive of the end index, not inclusive
+			let testPath = splitPath.slice(0,i+1).join('/')
+			// If path is excluded return without indexing
+			if (this.settings.exclusionList.includes(testPath)) {return;}
+		}
+		
 		let file = this.app.vault.getFileByPath(filePath);
 		if (file == null) {return;}
 		await this.ScrapeFile(file);
