@@ -1,3 +1,4 @@
+import { BADHINTS } from 'dns';
 import { App, debounce, Debouncer, Editor, MarkdownView, Modal, normalizePath, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, ToggleComponent } from 'obsidian';
 // TODO
 // Write to files in folders for Books vs one giant file?
@@ -562,5 +563,20 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				})
 			);
+
+		let exclusionSettings = new Setting(containerEl)
+			.setName('Paths to exclude from indexing')
+			.setDesc("Files and/or folders to exclude from automatic indexing")
+			.addTextArea(txt => txt
+				.setValue(this.plugin.settings.exclusionList.join("\n"))
+				.onChange(async (val) => {
+					let newList = new Array<string>;
+					let userList = val.split('\n');
+					userList.forEach(entry => newList.push(normalizePath(entry)));
+					this.plugin.settings.exclusionList = newList;
+					await this.plugin.saveSettings();
+				})
+			);
+		
 	}
 }
