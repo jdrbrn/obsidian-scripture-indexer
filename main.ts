@@ -564,7 +564,7 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 				})
 			);
 
-		let exclusionSettings = new Setting(containerEl)
+		new Setting(containerEl)
 			.setName('Paths to exclude from indexing')
 			.setDesc("Files and/or folders to exclude from automatic indexing")
 			.addButton(btn => btn
@@ -575,13 +575,21 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 					this.display();
 				})
 			);
+
+		// Could probably do a for loop with an index instead
 		let i = 0;
+		// For each item on the ExclusionList create a settings etnry for it
 		this.plugin.settings.exclusionList.forEach(listItem => {
+			// Save the index as a const for use in the callbacks
 			const listIndex = i;
+			// Create a div for the text entry and delete button
 			let listDiv = containerEl.createDiv()
+			// Set the style for proper display
 			listDiv.style.display = 'flex';
 			listDiv.style.justifyContent = 'space-between'
 			listDiv.style.marginBottom = '5px'
+
+			// Add the text entry
 			new TextComponent(listDiv)
 				.setValue(listItem)
 				.onChange(async (val) => {
@@ -589,6 +597,8 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				})
 				.inputEl.style.width = '-webkit-fill-available';
+				
+			// Add the delete button
 			new ButtonComponent(listDiv)
 				.setButtonText("X")
 				.onClick(async() => {
