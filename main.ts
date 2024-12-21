@@ -1,5 +1,5 @@
 import { BADHINTS } from 'dns';
-import { App, debounce, Debouncer, Editor, MarkdownView, Modal, normalizePath, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TFile, ToggleComponent } from 'obsidian';
+import { App, ButtonComponent, debounce, Debouncer, Editor, MarkdownView, Modal, normalizePath, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TextComponent, TFile, ToggleComponent } from 'obsidian';
 // TODO
 // Write to files in folders for Books vs one giant file?
 const BibleBooksNameTable = new Map([
@@ -567,16 +567,37 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 		let exclusionSettings = new Setting(containerEl)
 			.setName('Paths to exclude from indexing')
 			.setDesc("Files and/or folders to exclude from automatic indexing")
-			.addTextArea(txt => txt
-				.setValue(this.plugin.settings.exclusionList.join("\n"))
-				.onChange(async (val) => {
-					let newList = new Array<string>;
-					let userList = val.split('\n');
-					userList.forEach(entry => newList.push(normalizePath(entry)));
-					this.plugin.settings.exclusionList = newList;
-					await this.plugin.saveSettings();
+			.addButton(btn => btn
+				.setButtonText("Add item")
+				.onClick(async () => {
+					this.plugin.settings.exclusionList.push("");
+					this.plugin.saveSettings();
+					this.display();
 				})
 			);
-		
+		let i = 0;
+		this.plugin.settings.exclusionList.forEach(listItem => {
+			const listIndex = i;
+			let listDiv = containerEl.createDiv()
+			listDiv.style.display = 'flex';
+			listDiv.style.justifyContent = 'space-between'
+			listDiv.style.marginBottom = '5px'
+			new TextComponent(listDiv)
+				.setValue(listItem)
+				.onChange(async (val) => {
+					this.plugin.settings.exclusionList[listIndex] = val;
+					await this.plugin.saveSettings();
+				})
+				.inputEl.style.width = '-webkit-fill-available';
+			new ButtonComponent(listDiv)
+				.setButtonText("X")
+				.onClick(async() => {
+					this.plugin.settings.exclusionList.remove(this.plugin.settings.exclusionList[listIndex]);
+					await this.plugin.saveSettings();
+					this.display();
+				})
+				.buttonEl.style.marginLeft = '10px';
+			i++;
+		});
 	}
 }
