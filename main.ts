@@ -578,7 +578,7 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 
 		// Could probably do a for loop with an index instead
 		let i = 0;
-		// For each item on the ExclusionList create a settings etnry for it
+		// For each item on the ExclusionList create a settings entry for it
 		this.plugin.settings.exclusionList.forEach(listItem => {
 			// Save the index as a const for use in the callbacks
 			const listIndex = i;
@@ -597,7 +597,7 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				})
 				.inputEl.style.width = '-webkit-fill-available';
-				
+
 			// Add the delete button
 			new ButtonComponent(listDiv)
 				.setButtonText("X")
