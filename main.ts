@@ -44,7 +44,7 @@ interface ScriptureIndexerSettings {
 	indexFilePath: string;
 	// Book -> Chapters -> Verses -> Refs (Path to file)
 	// index of array is number of Chapter/Verse (0 index for chapter/verse is ref of whole book/chapter)
-	indexMap: Array<Array<Array<Array<String>>>>;
+	indexMap: Array<Array<Array<Array<string>>>>;
 	enableAutoIndex: boolean;
 	autoIndexDelay: number;
 	chapVerseDelimter: string;
@@ -63,9 +63,9 @@ const DEFAULT_SETTINGS: ScriptureIndexerSettings = {
 export default class ScriptureIndexer extends Plugin {
 	settings: ScriptureIndexerSettings;
 
-	indexQueue = new Map<string,Debouncer<any,any>>();
+	indexQueue = new Map<string,Debouncer<[], void>>();
 
-	derefQueue = new Map<string,Debouncer<any,any>>();
+	derefQueue = new Map<string,Debouncer<[], void>>();
 
 	async onload() {
 		await this.loadSettings();
