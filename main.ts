@@ -1,5 +1,4 @@
-import { BADHINTS } from 'dns';
-import { App, ButtonComponent, debounce, Debouncer, Editor, MarkdownView, Modal, normalizePath, Notice, Plugin, PluginSettingTab, Setting, TAbstractFile, TextComponent, TFile, ToggleComponent } from 'obsidian';
+import { App, ButtonComponent, debounce, Debouncer, Modal, normalizePath, Plugin, PluginSettingTab, Setting, TextComponent, TFile} from 'obsidian';
 // TODO
 // Write to files in folders for Books vs one giant file?
 const BibleBooksNameTable = new Map([
