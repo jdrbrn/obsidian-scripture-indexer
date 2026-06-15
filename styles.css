@@ -6,3 +6,16 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+.scripture-indexer-exclusion-row {
+	display: flex;
+	justify-content: space-between;
+	margin-bottom: 5px;
+}
+
+.scripture-indexer-exclusion-input {
+	width: -webkit-fill-available;
+}
+
+.scripture-indexer-exclusion-delete {
+	margin-left: 10px;
+}

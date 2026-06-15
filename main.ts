@@ -582,30 +582,26 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 			// Save the index as a const for use in the callbacks
 			const listIndex = i;
 			// Create a div for the text entry and delete button
-			let listDiv = containerEl.createDiv()
-			// Set the style for proper display
-			listDiv.style.display = 'flex';
-			listDiv.style.justifyContent = 'space-between'
-			listDiv.style.marginBottom = '5px'
+			const listDiv = containerEl.createDiv({ cls: 'scripture-indexer-exclusion-row' });
 
 			// Add the text entry
-			new TextComponent(listDiv)
+			const filepathinput = new TextComponent(listDiv)
 				.setValue(listItem)
 				.onChange(async (val) => {
 					this.plugin.settings.exclusionList[listIndex] = val;
 					await this.plugin.saveSettings();
 				})
-				.inputEl.style.width = '-webkit-fill-available';
+			filepathinput.inputEl.addClass('scripture-indexer-exclusion-input');
 
 			// Add the delete button
-			new ButtonComponent(listDiv)
+			const removeButton = new ButtonComponent(listDiv)
 				.setButtonText("X")
 				.onClick(async() => {
 					this.plugin.settings.exclusionList.remove(this.plugin.settings.exclusionList[listIndex]);
 					await this.plugin.saveSettings();
 					this.display();
 				})
-				.buttonEl.style.marginLeft = '10px';
+			removeButton.buttonEl.addClass('scripture-indexer-exclusion-delete');
 			i++;
 		});
 	}
