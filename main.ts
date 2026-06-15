@@ -75,7 +75,7 @@ export default class ScriptureIndexer extends Plugin {
 			id: 'index-all-scriptures',
 			name: 'Index all files',
 			callback: () => {
-				this.IndexAllFiles();
+				void this.IndexAllFiles();
 			}
 		});
 		
@@ -96,7 +96,7 @@ export default class ScriptureIndexer extends Plugin {
 			callback: () => {
 				this.settings.indexMap = [];
 				// Don't debounce because user wants us to write immediately
-				this.WriteIndex();
+				void this.WriteIndex();
 			}
 		});
 
@@ -140,8 +140,8 @@ export default class ScriptureIndexer extends Plugin {
 			this.indexQueue.forEach((queueItem)=> {
 				queueItem().run();
 			});
-			this.WriteIndex();
-			this.saveSettings();
+			void this.WriteIndex();
+			void this.saveSettings();
 		}));
 	}
 
@@ -160,7 +160,7 @@ export default class ScriptureIndexer extends Plugin {
 		//     A note (bar.md) is saved and indexed
 		//     Loaded index data now contains bar.md but not foo.md
 		//     Output index file is now missing references to foo.md that should be there
-		this.loadSettings();
+		void this.loadSettings();
 	}
 
 	async loadSettings() {
@@ -177,7 +177,7 @@ export default class ScriptureIndexer extends Plugin {
 	saveSettingsDebounce = debounce(this.saveSettings, 1000, true);
 
 	async IndexAllFiles() {
-		let files = await this.app.vault.getMarkdownFiles();
+		let files = this.app.vault.getMarkdownFiles();
 		for (let file of files) {
 			this.AddToIndexQueue(file.path);
 		}
@@ -190,7 +190,7 @@ export default class ScriptureIndexer extends Plugin {
 			// Contains debounced function to delete the file from the queue and then index the file with the user set timer
 			this.indexQueue.set(filePath, debounce(() => {
 															this.indexQueue.delete(filePath);
-															this.IndexFile(filePath);
+															void this.IndexFile(filePath);
 														}, this.settings.autoIndexDelay, true));
 		}
 
@@ -392,7 +392,7 @@ export default class ScriptureIndexer extends Plugin {
 			{
 				curPath += splitPath[i];
 				if (vault.getFolderByPath(curPath)==null) {
-					vault.createFolder(curPath);
+					await vault.createFolder(curPath);
 				}
 				curPath += "/";
 			}
@@ -463,7 +463,7 @@ export default class ScriptureIndexer extends Plugin {
 		}
 
 		// Overwrite indexFile with new contents
-		vault.process(indexFile, () => {return indexFileContents});
+		await vault.process(indexFile, () => {return indexFileContents});
 	}
 
 	// Debounce the writeIndex function to batch saving the index
@@ -512,9 +512,9 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 						.setCta()
 						.onClick(async () => {
 							plugin.settings.indexMap = [];
-							plugin.WriteIndex();
+							await plugin.WriteIndex();
 							await plugin.saveSettings();
-							if (plugin.settings.enableAutoIndex) plugin.IndexAllFiles();
+							if (plugin.settings.enableAutoIndex) void plugin.IndexAllFiles();
 							this.close()
 						})
 					);
@@ -570,7 +570,7 @@ class ScriptureIndexerSettingTab extends PluginSettingTab {
 				.setButtonText("Add item")
 				.onClick(async () => {
 					this.plugin.settings.exclusionList.push("");
-					this.plugin.saveSettings();
+					await this.plugin.saveSettings();
 					this.display();
 				})
 			);
