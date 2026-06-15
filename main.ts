@@ -174,7 +174,7 @@ export default class ScriptureIndexer extends Plugin {
 	// Have a debounced saveSettings to buffer saving the internal index
 	// Has a delay timer of 1 second
 	// Keeps delaying until no request to save has been received in the past second
-	saveSettingsDebounce = debounce(this.saveSettings, 1000, true);
+	saveSettingsDebounce = debounce(() => this.saveSettings(), 1000, true);
 
 	async IndexAllFiles() {
 		let files = this.app.vault.getMarkdownFiles();
@@ -468,7 +468,7 @@ export default class ScriptureIndexer extends Plugin {
 
 	// Debounce the writeIndex function to batch saving the index
 	// Buffers for 1 second until no more write calls are made
-	WriteIndexDebounce = debounce(this.WriteIndex, 1000, true);
+	WriteIndexDebounce = debounce(() => this.WriteIndex(), 1000, true);
 }
 
 class ScriptureIndexerSettingTab extends PluginSettingTab {
